@@ -1,18 +1,29 @@
 <?php
+// bootstrap/app.php
+$config = require __DIR__ . '/../config/app.php';
 
-use Illuminate\Foundation\Application;
-use Illuminate\Foundation\Configuration\Exceptions;
-use Illuminate\Foundation\Configuration\Middleware;
+date_default_timezone_set($config['timezone']);
 
-return Application::configure(basePath: dirname(__DIR__))
-    ->withRouting(
-        web: __DIR__.'/../routes/web.php',
-        commands: __DIR__.'/../routes/console.php',
-        health: '/up',
-    )
-    ->withMiddleware(function (Middleware $middleware): void {
-        //
-    })
-    ->withExceptions(function (Exceptions $exceptions): void {
-        //
-    })->create();
+if (session_status() !== PHP_SESSION_ACTIVE) {
+    session_name('gestao_artesanal_session');
+    session_start();
+}
+
+require_once __DIR__ . '/../app/Helpers/functions.php';
+
+spl_autoload_register(function (string $class): void {
+    $folders = [
+        __DIR__ . '/../app/Core/',
+        __DIR__ . '/../app/Controllers/',
+        __DIR__ . '/../app/Models/',
+        __DIR__ . '/../app/Middleware/',
+    ];
+
+    foreach ($folders as $folder) {
+        $file = $folder . $class . '.php';
+        if (file_exists($file)) {
+            require_once $file;
+            return;
+        }
+    }
+});

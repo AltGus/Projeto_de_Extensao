@@ -1,0 +1,14 @@
+USE gestao_artesanal;
+
+SET FOREIGN_KEY_CHECKS = 0;
+
+DROP TABLE IF EXISTS activity_logs;
+DROP TABLE IF EXISTS stock_movements;
+DROP TABLE IF EXISTS materials;
+DROP TABLE IF EXISTS productions;
+DROP TABLE IF EXISTS products;
+DROP TABLE IF EXISTS workshop_user;
+DROP TABLE IF EXISTS workshops;
+DROP TABLE IF EXISTS users;
+
+SET FOREIGN_KEY_CHECKS = 1;
