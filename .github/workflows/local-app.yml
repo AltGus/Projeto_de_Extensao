@@ -43,6 +43,14 @@ jobs:
           php tests/local/http-fixture.php
           php -S 127.0.0.1:18080 -t public public/router.php > /tmp/gestao-http.log 2>&1 &
           sleep 2
-          python3 tests/local/http.py
+          python3 tests/local/http_smoke.py
       - name: Docker build
         run: docker build -t gestao-local:test .
+      - name: Apache container HTTP smoke tests
+        run: |
+          docker run -d --name gestao-apache --network host -e DB_HOST -e DB_DATABASE -e DB_USERNAME -e DB_PASSWORD gestao-local:test
+          sleep 3
+          TEST_BASE_URL=http://127.0.0.1 python3 tests/local/http_smoke.py
+      - name: Container logs on failure
+        if: failure()
+        run: docker logs gestao-apache || true

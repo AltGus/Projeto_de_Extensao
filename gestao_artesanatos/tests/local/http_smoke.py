@@ -1,5 +1,5 @@
-import urllib.request,urllib.parse,http.cookiejar,re
-base='http://127.0.0.1:18080'
+import urllib.request,urllib.parse,http.cookiejar,re,os
+base=os.environ.get('TEST_BASE_URL','http://127.0.0.1:18080')
 jar=http.cookiejar.CookieJar();client=urllib.request.build_opener(urllib.request.HTTPCookieProcessor(jar))
 def get(path):return client.open(base+path).read().decode()
 def post(path,data):return client.open(base+path,urllib.parse.urlencode(data).encode()).read().decode()
