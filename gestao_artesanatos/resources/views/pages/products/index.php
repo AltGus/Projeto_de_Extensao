@@ -71,12 +71,12 @@ $products = $products ?? $items ?? [];
                                             <form
                                                 method="POST"
                                                 action="<?= e(url('/produtos/' . $product['id'] . '/excluir')) ?>"
-                                                data-confirm="Deseja excluir este produto?"
+                                                data-confirm="Deseja arquivar este produto?"
                                             >
                                                 <?= csrf_field() ?>
 
                                                 <button type="submit" class="btn btn-danger">
-                                                    Excluir
+                                                    Arquivar
                                                 </button>
                                             </form>
                                         </div>

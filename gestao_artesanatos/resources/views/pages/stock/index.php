@@ -36,7 +36,7 @@ $movements = $movements ?? $items ?? [];
                             <?= e($material['current_quantity']) ?>
                             <?= e($material['unit']) ?>
 
-                            <?php if ((int) $material['current_quantity'] <= (int) $material['min_quantity']): ?>
+                            <?php if ((float) $material['current_quantity'] <= (float) $material['min_quantity']): ?>
                                 <span class="badge badge-warning">Baixo</span>
                             <?php endif; ?>
                         </strong>
@@ -96,6 +96,7 @@ $movements = $movements ?? $items ?? [];
 
                             <?php if (is_professor()): ?>
                                 <div class="actions" style="margin-top: 10px;">
+                                    <a class="btn btn-secondary" href="<?= e(url('/estoque/' . $movement['id'] . '/editar')) ?>">Editar</a>
                                     <form
                                         method="POST"
                                         action="<?= e(url('/estoque/' . $movement['id'] . '/excluir')) ?>"

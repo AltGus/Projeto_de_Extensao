@@ -78,13 +78,13 @@ $appliesToAll = (int) ($material['applies_to_all'] ?? 1);
 </div>
 
 <div class="form-group">
-    <label for="current_quantity">Quantidade atual</label>
+    <label for="current_quantity">Quantidade atual (alterações pela tela Estoque)</label>
 
     <input
         class="input"
-        type="number"
+        type="number" step="0.001"
         id="current_quantity"
-        name="current_quantity"
+        name="current_quantity" <?= isset($material['id']) ? 'readonly' : '' ?>
         min="0"
         value="<?= e($currentQuantity) ?>"
         required
@@ -96,7 +96,7 @@ $appliesToAll = (int) ($material['applies_to_all'] ?? 1);
 
     <input
         class="input"
-        type="number"
+        type="number" step="0.001"
         id="min_quantity"
         name="min_quantity"
         min="0"

@@ -56,10 +56,10 @@ $notes = $movement['notes'] ?? '';
 
     <input
         class="input"
-        type="number"
+        type="number" step="0.001"
         id="quantity"
         name="quantity"
-        min="1"
+        min="0.001"
         value="<?= e($quantity) ?>"
         required
     >

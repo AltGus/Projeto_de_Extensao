@@ -73,12 +73,12 @@ $users = $users ?? $items ?? [];
                                             <form
                                                 method="POST"
                                                 action="<?= e(url('/admin/usuarios/' . $user['id'] . '/excluir')) ?>"
-                                                data-confirm="Deseja excluir este usuário?"
+                                                data-confirm="Deseja arquivar este usuário?"
                                             >
                                                 <?= csrf_field() ?>
 
                                                 <button type="submit" class="btn btn-danger">
-                                                    Excluir
+                                                    Arquivar
                                                 </button>
                                             </form>
                                         <?php else: ?>

@@ -24,9 +24,9 @@ foreach ($items as $item) {
     $actions = Auth::isAdmin()
         ? '<div class="actions-inline">'
             . '<a class="btn btn-secondary" href="' . e(url('/produtos/' . $item['id'] . '/editar')) . '">Editar</a>'
-            . '<form method="post" action="' . e(url('/produtos/' . $item['id'] . '/excluir')) . '" onsubmit="return confirm(\'Excluir produto?\')">'
+            . '<form method="post" action="' . e(url('/produtos/' . $item['id'] . '/excluir')) . '" onsubmit="return confirm(\'Arquivar produto?\')">'
             . csrf_field()
-            . '<button class="btn btn-danger" type="submit">Excluir</button>'
+            . '<button class="btn btn-danger" type="submit">Arquivar</button>'
             . '</form>'
         . '</div>'
         : '—';
@@ -139,9 +139,9 @@ foreach ($items as $item) {
     $actions = Auth::isAdmin()
         ? '<div class="actions-inline">'
             . '<a class="btn btn-secondary" href="' . e(url('/materiais/' . $item['id'] . '/editar')) . '">Editar</a>'
-            . '<form method="post" action="' . e(url('/materiais/' . $item['id'] . '/excluir')) . '" onsubmit="return confirm(\'Excluir material?\')">'
+            . '<form method="post" action="' . e(url('/materiais/' . $item['id'] . '/excluir')) . '" onsubmit="return confirm(\'Arquivar material?\')">'
             . csrf_field()
-            . '<button class="btn btn-danger" type="submit">Excluir</button>'
+            . '<button class="btn btn-danger" type="submit">Arquivar</button>'
             . '</form>'
         . '</div>'
         : '—';
