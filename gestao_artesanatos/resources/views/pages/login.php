@@ -31,7 +31,9 @@
 </form>
 
 <div class="auth-footer">
-    Ainda não tem conta?
+<?php if (config_value('app.allow_registration', false)): ?>
     <a href="<?= e(url('/cadastro')) ?>">Criar cadastro</a>
+<?php else: ?>
+    Solicite sua conta ao professor responsável.
+<?php endif; ?>
 </div>
-

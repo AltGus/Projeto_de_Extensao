@@ -64,7 +64,7 @@ $materials = $materials ?? $items ?? [];
                                         <?= e($material['current_quantity']) ?>
                                     </strong>
 
-                                    <?php if ((int) $material['current_quantity'] <= (int) $material['min_quantity']): ?>
+                                    <?php if ((float) $material['current_quantity'] <= (float) $material['min_quantity']): ?>
                                         <span class="badge badge-warning">
                                             Baixo estoque
                                         </span>

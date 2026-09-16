@@ -65,12 +65,12 @@ $workshops = $workshops ?? $items ?? [];
                         <form
                             method="POST"
                             action="<?= e(url('/oficinas/' . $workshop['id'] . '/excluir')) ?>"
-                            data-confirm="Deseja excluir esta oficina?"
+                            data-confirm="Deseja arquivar esta oficina?"
                         >
                             <?= csrf_field() ?>
 
                             <button type="submit" class="btn btn-danger">
-                                Excluir
+                                Arquivar
                             </button>
                         </form>
                     <?php endif; ?>

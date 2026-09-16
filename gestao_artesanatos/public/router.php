@@ -1,21 +1,6 @@
 <?php
-
-/*
-|--------------------------------------------------------------------------
-| Router para servidor embutido do PHP
-|--------------------------------------------------------------------------
-| Use o comando:
-|
-| php -S localhost:8000 -t public public/router.php
-|--------------------------------------------------------------------------
-*/
-
-$uri = urldecode(parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) ?: '/');
-
-$file = __DIR__ . $uri;
-
-if ($uri !== '/' && is_file($file)) {
-    return false;
-}
-
+$uri = rawurldecode(parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) ?: '/');
+$file = realpath(__DIR__ . $uri);
+$assets = realpath(__DIR__ . '/assets');
+if ($file && $assets && str_starts_with($file, $assets . DIRECTORY_SEPARATOR) && is_file($file)) return false;
 require __DIR__ . '/index.php';

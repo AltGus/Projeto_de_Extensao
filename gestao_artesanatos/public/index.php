@@ -45,16 +45,20 @@ function required_fields(array $fields, string $redirect): void
 function action_attempt(callable $callback, string $successMessage, string $redirect): void
 {
     try {
+        db()->beginTransaction();
         $result = $callback();
 
         if ($result === false) {
+            db()->rollBack();
             redirect_to($redirect);
         }
 
+        db()->commit();
         flash('success', $successMessage);
         redirect_to($redirect);
     } catch (Throwable $e) {
-        flash('error', 'Erro: ' . $e->getMessage());
+        if (db()->inTransaction()) db()->rollBack();
+        report_error($e);
         redirect_to($redirect);
     }
 }
@@ -99,6 +103,10 @@ if ($method === 'POST' && $path === '/login') {
     redirect_to('/login');
 }
 
+if (($path === '/cadastro' || $path === '/register') && !config_value('app.allow_registration', false)) {
+    http_response_code(403); exit('Solicite seu cadastro ao professor responsável.');
+}
+
 if ($method === 'GET' && ($path === '/cadastro' || $path === '/register')) {
     guest_only();
 
@@ -141,6 +149,16 @@ if ($method === 'POST' && $path === '/logout') {
 */
 
 require_login();
+
+// Reject nonexistent or archived targets before edits or success audit messages.
+if (preg_match('#^/(oficinas|produtos|materiais|producoes|estoque|admin/usuarios)/([0-9]+)(?:/|$)#', $path, $target)) {
+    $finders = ['oficinas'=>'workshop_find','produtos'=>'product_find','materiais'=>'material_find',
+        'producoes'=>'production_find','estoque'=>'stock_movement_find','admin/usuarios'=>'user_find'];
+    $record = $finders[$target[1]]((int)$target[2]);
+    if (!$record || (isset($record['active']) && !$record['active'])) {
+        http_response_code(404); exit('Registro não encontrado ou arquivado.');
+    }
+}
 
 /*
 |--------------------------------------------------------------------------
@@ -192,8 +210,9 @@ if ($method === 'POST' && $path === '/oficinas') {
     required_fields(['name'], '/oficinas/criar');
 
     action_attempt(function () {
-        activity_log('Oficina criada', 'Uma nova oficina foi cadastrada.');
-        return workshop_create($_POST);
+        $result = workshop_create($_POST);
+        if ($result) activity_log('Oficina criada', 'Uma nova oficina foi cadastrada.');
+        return $result;
     }, 'Oficina criada com sucesso.', '/oficinas');
 }
 
@@ -240,8 +259,9 @@ if ($method === 'POST' && ($params = route_params('/oficinas/{id}/atualizar', $p
     required_fields(['name'], '/oficinas/' . $id . '/editar');
 
     action_attempt(function () use ($id) {
-        activity_log('Oficina atualizada', 'Uma oficina foi atualizada.');
-        return workshop_update($id, $_POST);
+        $result = workshop_update($id, $_POST);
+        if ($result) activity_log('Oficina atualizada', 'Uma oficina foi atualizada.');
+        return $result;
     }, 'Oficina atualizada com sucesso.', '/oficinas');
 }
 
@@ -251,9 +271,10 @@ if ($method === 'POST' && ($params = route_params('/oficinas/{id}/excluir', $pat
     $id = (int) $params['id'];
 
     action_attempt(function () use ($id) {
-        activity_log('Oficina excluída', 'Uma oficina foi removida.');
-        return workshop_delete($id);
-    }, 'Oficina excluída com sucesso.', '/oficinas');
+        $result = workshop_delete($id);
+        if ($result) activity_log('Oficina arquivada', 'Uma oficina foi removida.');
+        return $result;
+    }, 'Oficina arquivada com sucesso.', '/oficinas');
 }
 
 if ($method === 'POST' && ($params = route_params('/oficinas/{id}/participantes', $path))) {
@@ -312,8 +333,9 @@ if ($method === 'POST' && $path === '/produtos') {
     required_fields(['name', 'category'], '/produtos/criar');
 
     action_attempt(function () {
-        activity_log('Produto criado', 'Um produto artesanal foi cadastrado.');
-        return product_create($_POST);
+        $result = product_create($_POST);
+        if ($result) activity_log('Produto criado', 'Um produto artesanal foi cadastrado.');
+        return $result;
     }, 'Produto criado com sucesso.', '/produtos');
 }
 
@@ -339,8 +361,9 @@ if ($method === 'POST' && ($params = route_params('/produtos/{id}/atualizar', $p
     required_fields(['name', 'category'], '/produtos/' . $id . '/editar');
 
     action_attempt(function () use ($id) {
-        activity_log('Produto atualizado', 'Um produto artesanal foi atualizado.');
-        return product_update($id, $_POST);
+        $result = product_update($id, $_POST);
+        if ($result) activity_log('Produto atualizado', 'Um produto artesanal foi atualizado.');
+        return $result;
     }, 'Produto atualizado com sucesso.', '/produtos');
 }
 
@@ -350,9 +373,10 @@ if ($method === 'POST' && ($params = route_params('/produtos/{id}/excluir', $pat
     $id = (int) $params['id'];
 
     action_attempt(function () use ($id) {
-        activity_log('Produto excluído', 'Um produto artesanal foi removido.');
-        return product_delete($id);
-    }, 'Produto excluído com sucesso.', '/produtos');
+        $result = product_delete($id);
+        if ($result) activity_log('Produto arquivado', 'Um produto artesanal foi removido.');
+        return $result;
+    }, 'Produto arquivado com sucesso.', '/produtos');
 }
 
 /*
@@ -386,8 +410,9 @@ if ($method === 'POST' && $path === '/producoes') {
     required_fields(['product_id', 'workshop_id', 'quantity', 'produced_at', 'purpose'], '/producoes/criar');
 
     action_attempt(function () {
-        activity_log('Produção registrada', 'Uma produção artesanal foi cadastrada.');
-        return production_create($_POST);
+        $result = production_create($_POST);
+        if ($result) activity_log('Produção registrada', 'Uma produção artesanal foi cadastrada.');
+        return $result;
     }, 'Produção registrada com sucesso.', '/producoes');
 }
 
@@ -415,8 +440,9 @@ if ($method === 'POST' && ($params = route_params('/producoes/{id}/atualizar', $
     required_fields(['product_id', 'workshop_id', 'quantity', 'produced_at', 'purpose'], '/producoes/' . $id . '/editar');
 
     action_attempt(function () use ($id) {
-        activity_log('Produção atualizada', 'Uma produção artesanal foi atualizada.');
-        return production_update($id, $_POST);
+        $result = production_update($id, $_POST);
+        if ($result) activity_log('Produção atualizada', 'Uma produção artesanal foi atualizada.');
+        return $result;
     }, 'Produção atualizada com sucesso.', '/producoes');
 }
 
@@ -426,8 +452,9 @@ if ($method === 'POST' && ($params = route_params('/producoes/{id}/excluir', $pa
     $id = (int) $params['id'];
 
     action_attempt(function () use ($id) {
-        activity_log('Produção excluída', 'Uma produção artesanal foi removida.');
-        return production_delete($id);
+        $result = production_delete($id);
+        if ($result) activity_log('Produção excluída', 'Uma produção artesanal foi removida.');
+        return $result;
     }, 'Produção excluída com sucesso.', '/producoes');
 }
 
@@ -452,6 +479,7 @@ if ($method === 'GET' && $path === '/materiais/criar') {
 
     view('materials/create', [
         'title' => 'Novo Material',
+        'workshops' => workshops_all(),
     ]);
 
     exit;
@@ -463,8 +491,9 @@ if ($method === 'POST' && $path === '/materiais') {
     required_fields(['name', 'category', 'unit'], '/materiais/criar');
 
     action_attempt(function () {
-        activity_log('Material criado', 'Um material foi cadastrado.');
-        return material_create($_POST);
+        $result = material_create($_POST);
+        if ($result) activity_log('Material criado', 'Um material foi cadastrado.');
+        return $result;
     }, 'Material criado com sucesso.', '/materiais');
 }
 
@@ -476,6 +505,8 @@ if ($method === 'GET' && ($params = route_params('/materiais/{id}/editar', $path
     view('materials/edit', [
         'title' => 'Editar Material',
         'material' => material_find($id),
+        'workshops' => workshops_all(),
+        'selectedWorkshops' => material_selected_workshops($id),
     ]);
 
     exit;
@@ -489,8 +520,9 @@ if ($method === 'POST' && ($params = route_params('/materiais/{id}/atualizar', $
     required_fields(['name', 'category', 'unit'], '/materiais/' . $id . '/editar');
 
     action_attempt(function () use ($id) {
-        activity_log('Material atualizado', 'Um material foi atualizado.');
-        return material_update($id, $_POST);
+        $result = material_update($id, $_POST);
+        if ($result) activity_log('Material atualizado', 'Um material foi atualizado.');
+        return $result;
     }, 'Material atualizado com sucesso.', '/materiais');
 }
 
@@ -500,9 +532,10 @@ if ($method === 'POST' && ($params = route_params('/materiais/{id}/excluir', $pa
     $id = (int) $params['id'];
 
     action_attempt(function () use ($id) {
-        activity_log('Material excluído', 'Um material foi removido.');
-        return material_delete($id);
-    }, 'Material excluído com sucesso.', '/materiais');
+        $result = material_delete($id);
+        if ($result) activity_log('Material arquivado', 'Um material foi removido.');
+        return $result;
+    }, 'Material arquivado com sucesso.', '/materiais');
 }
 
 /*
@@ -539,9 +572,27 @@ if ($method === 'POST' && $path === '/estoque') {
     required_fields(['material_id', 'movement_type', 'quantity', 'movement_date'], '/estoque/criar');
 
     action_attempt(function () {
-        activity_log('Estoque movimentado', 'Uma movimentação de estoque foi registrada.');
-        return stock_create_movement($_POST);
+        $result = stock_create_movement($_POST);
+        if ($result) activity_log('Estoque movimentado', 'Uma movimentação de estoque foi registrada.');
+        return $result;
     }, 'Movimentação registrada com sucesso.', '/estoque');
+}
+
+if ($method === 'GET' && ($params = route_params('/estoque/{id}/editar', $path))) {
+    require_professor();
+    $movement = stock_movement_find((int)$params['id']);
+    if (!$movement) { http_response_code(404); exit('Movimentação não encontrada.'); }
+    view('stock/edit', ['title' => 'Editar movimentação', 'movement' => $movement, 'materials' => materials_all()]);
+    exit;
+}
+if ($method === 'POST' && ($params = route_params('/estoque/{id}/atualizar', $path))) {
+    require_professor();
+    $id = (int)$params['id'];
+    action_attempt(function () use ($id) {
+        $result = stock_update_movement($id, $_POST);
+        if ($result) activity_log('Movimentação atualizada', 'Movimentação ID ' . $id);
+        return $result;
+    }, 'Movimentação atualizada.', '/estoque');
 }
 
 if ($method === 'POST' && ($params = route_params('/estoque/{id}/excluir', $path))) {
@@ -550,8 +601,9 @@ if ($method === 'POST' && ($params = route_params('/estoque/{id}/excluir', $path
     $id = (int) $params['id'];
 
     action_attempt(function () use ($id) {
-        activity_log('Movimentação excluída', 'Uma movimentação de estoque foi removida.');
-        return stock_delete_movement($id);
+        $result = stock_delete_movement($id);
+        if ($result) activity_log('Movimentação excluída', 'Uma movimentação de estoque foi removida.');
+        return $result;
     }, 'Movimentação excluída com sucesso.', '/estoque');
 }
 
@@ -563,16 +615,25 @@ if ($method === 'POST' && ($params = route_params('/estoque/{id}/excluir', $path
 
 if ($method === 'GET' && ($path === '/relatorios' || $path === '/reports')) {
     require_professor();
-
-    view('reports/index', [
-        'title' => 'Relatórios',
-        'ranking' => report_production_by_workshop(),
+    try { $rows = report_filtered_productions($_GET); }
+    catch (DomainException $e) { flash('error', $e->getMessage()); redirect_to('/relatorios'); }
+    if (($_GET['export'] ?? '') === 'csv') {
+        header('Content-Type: text/csv; charset=UTF-8');
+        header('Content-Disposition: attachment; filename="producoes.csv"');
+        $out = fopen('php://output', 'w');
+        fwrite($out, "\xEF\xBB\xBF");
+        fputcsv($out, ['Data','Oficina','Produto','Responsável','Quantidade','Finalidade'], ';', '"', '');
+        foreach ($rows as $row) fputcsv($out, array_map('csv_safe', [$row['produced_at'],$row['workshop_name'],$row['product_name'],$row['responsible_name'],$row['quantity'],$row['purpose']]), ';', '"', '');
+        fclose($out); exit;
+    }
+    view('reports/filtered', [
+        'title' => 'Relatórios', 'rows' => $rows,
+        // Include archived entities so their historical production remains searchable.
+        'workshops' => query_all('SELECT id,name FROM workshops ORDER BY name'),
+        'products' => query_all('SELECT id,name FROM products ORDER BY name'),
+        'users' => query_all('SELECT id,name FROM users ORDER BY name'),
         'materialConsumption' => report_material_consumption(),
-        'activities' => report_recent_activities(),
-        'lowStock' => dashboard_low_stock(),
-        'stats' => dashboard_stats(),
     ]);
-
     exit;
 }
 
@@ -610,8 +671,9 @@ if ($method === 'POST' && $path === '/admin/usuarios') {
     required_fields(['name', 'email', 'password', 'role'], '/admin/usuarios/criar');
 
     action_attempt(function () {
-        activity_log('Usuário criado', 'Um usuário foi cadastrado pelo administrador.');
-        return user_create($_POST);
+        $result = user_create($_POST);
+        if ($result) activity_log('Usuário criado', 'Um usuário foi cadastrado pelo administrador.');
+        return $result;
     }, 'Usuário criado com sucesso.', '/admin');
 }
 
@@ -637,8 +699,9 @@ if ($method === 'POST' && ($params = route_params('/admin/usuarios/{id}/atualiza
     required_fields(['name', 'email', 'role'], '/admin/usuarios/' . $id . '/editar');
 
     action_attempt(function () use ($id) {
-        activity_log('Usuário atualizado', 'Um usuário foi atualizado pelo administrador.');
-        return user_update($id, $_POST);
+        $result = user_update($id, $_POST);
+        if ($result) activity_log('Usuário atualizado', 'Um usuário foi atualizado pelo administrador.');
+        return $result;
     }, 'Usuário atualizado com sucesso.', '/admin');
 }
 
@@ -653,9 +716,10 @@ if ($method === 'POST' && ($params = route_params('/admin/usuarios/{id}/excluir'
     }
 
     action_attempt(function () use ($id) {
-        activity_log('Usuário excluído', 'Um usuário foi removido pelo administrador.');
-        return user_delete($id);
-    }, 'Usuário excluído com sucesso.', '/admin');
+        $result = user_delete($id);
+        if ($result) activity_log('Usuário arquivado', 'Um usuário foi removido pelo administrador.');
+        return $result;
+    }, 'Usuário arquivado com sucesso.', '/admin');
 }
 
 /*

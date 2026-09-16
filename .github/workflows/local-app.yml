@@ -1,0 +1,48 @@
+name: Aplicação local
+on: [push, pull_request]
+permissions:
+  contents: read
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    services:
+      mariadb:
+        image: mariadb:11.4
+        env:
+          MARIADB_ROOT_PASSWORD: test-root-password
+          MARIADB_DATABASE: test_gestao
+          MARIADB_USER: gestao
+          MARIADB_PASSWORD: test-password
+        ports: ["3306:3306"]
+        options: >-
+          --health-cmd="healthcheck.sh --connect --innodb_initialized"
+          --health-interval=5s --health-timeout=5s --health-retries=30
+    env:
+      DB_HOST: 127.0.0.1
+      DB_DATABASE: test_gestao
+      DB_USERNAME: gestao
+      DB_PASSWORD: test-password
+    defaults:
+      run:
+        working-directory: gestao_artesanatos
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: pdo_mysql
+      - name: PHP syntax
+        run: find src bin tests/local resources/views/pages resources/views/layouts -name '*.php' -print0 | xargs -0 -n1 php -l && php -l public/index.php
+      - run: php tests/local/unit.php
+      - run: php tests/local/integration.php
+      - run: php tests/local/concurrency.php
+      - name: Migration can run twice
+        run: php bin/migrate.php && php bin/migrate.php
+      - name: HTTP smoke tests
+        run: |
+          php tests/local/http-fixture.php
+          php -S 127.0.0.1:18080 -t public public/router.php > /tmp/gestao-http.log 2>&1 &
+          sleep 2
+          python3 tests/local/http.py
+      - name: Docker build
+        run: docker build -t gestao-local:test .
