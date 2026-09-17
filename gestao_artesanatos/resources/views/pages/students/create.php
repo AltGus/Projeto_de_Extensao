@@ -1,0 +1,2 @@
+<div class="page-header"><div><h2>Novo Aluno</h2><p>Cadastre a criança sem criar e-mail, senha ou conta de acesso.</p></div><a class="btn btn-secondary" href="<?= e(url('/alunos')) ?>">Voltar</a></div>
+<section class="panel"><div class="panel-body"><form class="form" method="POST" action="<?= e(url('/alunos')) ?>"><?= csrf_field() ?><?php $student=[];$selectedWorkshops=[];require __DIR__.'/fields.php'; ?><div class="form-actions"><button class="btn btn-primary">Salvar Aluno</button></div></form></div></section>

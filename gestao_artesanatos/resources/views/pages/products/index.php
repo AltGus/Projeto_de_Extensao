@@ -41,7 +41,7 @@ $products = $products ?? $items ?? [];
                         <?php foreach ($products as $product): ?>
                             <tr>
                                 <td>
-                                    <strong><?= e($product['name']) ?></strong>
+                                    <a class="text-link" href="<?= e(url('/produtos/' . $product['id'])) ?>"><strong><?= e($product['name']) ?></strong></a>
                                 </td>
 
                                 <td>
@@ -71,12 +71,12 @@ $products = $products ?? $items ?? [];
                                             <form
                                                 method="POST"
                                                 action="<?= e(url('/produtos/' . $product['id'] . '/excluir')) ?>"
-                                                data-confirm="Deseja excluir este produto?"
+                                                data-confirm="Deseja arquivar este produto?"
                                             >
                                                 <?= csrf_field() ?>
 
                                                 <button type="submit" class="btn btn-danger">
-                                                    Excluir
+                                                    Arquivar
                                                 </button>
                                             </form>
                                         </div>

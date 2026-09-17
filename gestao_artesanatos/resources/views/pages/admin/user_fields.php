@@ -67,7 +67,7 @@ $isEdit = !empty($userItem['id']);
         </option>
 
         <option value="aluno" <?= $role === 'aluno' ? 'selected' : '' ?>>
-            Aluno / Participante
+            Usuário Operacional (sem administração)
         </option>
     </select>
 </div>

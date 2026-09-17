@@ -18,7 +18,7 @@ $notes = $movement['notes'] ?? '';
 
         <?php foreach ($materials as $material): ?>
             <option
-                value="<?= e($material['id']) ?>"
+                value="<?= e($material['id']) ?>" data-mode="<?= e($material['quantity_mode'] ?? 'decimal') ?>"
                 <?= (string) $selectedMaterialId === (string) $material['id'] ? 'selected' : '' ?>
             >
                 <?= e($material['name']) ?>
@@ -56,10 +56,10 @@ $notes = $movement['notes'] ?? '';
 
     <input
         class="input"
-        type="number"
+        type="number" step="0.001"
         id="quantity"
         name="quantity"
-        min="1"
+        min="0.001"
         value="<?= e($quantity) ?>"
         required
     >
@@ -89,3 +89,6 @@ $notes = $movement['notes'] ?? '';
         required
     ><?= e($notes) ?></textarea>
 </div>
+<script>
+(function(){const sel=document.getElementById('material_id'),qty=document.getElementById('quantity');function sync(){if(!sel||!qty)return;const o=sel.options[sel.selectedIndex];const whole=o&&o.dataset.mode==='integer';qty.step=whole?'1':'0.001';qty.min=whole?'1':'0.001';}if(sel){sel.addEventListener('change',sync);sync();}})();
+</script>

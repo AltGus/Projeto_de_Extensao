@@ -36,6 +36,12 @@
                     Oficinas
                 </a>
 
+                <?php if (is_professor()): ?>
+                    <a href="<?= e(url('/alunos')) ?>" class="<?= str_starts_with(request_path(), '/alunos') ? 'active' : '' ?>">
+                        Alunos
+                    </a>
+                <?php endif; ?>
+
                 <a href="<?= e(url('/producoes')) ?>" class="<?= str_starts_with(request_path(), '/producoes') ? 'active' : '' ?>">
                     Produções
                 </a>

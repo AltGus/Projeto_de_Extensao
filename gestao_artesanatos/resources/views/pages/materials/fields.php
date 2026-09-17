@@ -6,6 +6,7 @@ $selectedWorkshops = $selectedWorkshops ?? [];
 $name = $material['name'] ?? '';
 $category = $material['category'] ?? '';
 $unit = $material['unit'] ?? 'un';
+$quantityMode = $material['quantity_mode'] ?? 'decimal';
 $currentQuantity = $material['current_quantity'] ?? 0;
 $minQuantity = $material['min_quantity'] ?? 0;
 $appliesToAll = (int) ($material['applies_to_all'] ?? 1);
@@ -67,6 +68,7 @@ $appliesToAll = (int) ($material['applies_to_all'] ?? 1);
     <select class="select" id="unit" name="unit" required>
         <option value="un" <?= $unit === 'un' ? 'selected' : '' ?>>Unidade (un)</option>
         <option value="m" <?= $unit === 'm' ? 'selected' : '' ?>>Metro (m)</option>
+        <option value="cm" <?= $unit === 'cm' ? 'selected' : '' ?>>Centímetro (cm)</option>
         <option value="kg" <?= $unit === 'kg' ? 'selected' : '' ?>>Quilograma (kg)</option>
         <option value="g" <?= $unit === 'g' ? 'selected' : '' ?>>Grama (g)</option>
         <option value="l" <?= $unit === 'l' ? 'selected' : '' ?>>Litro (l)</option>
@@ -74,17 +76,26 @@ $appliesToAll = (int) ($material['applies_to_all'] ?? 1);
         <option value="pacote" <?= $unit === 'pacote' ? 'selected' : '' ?>>Pacote</option>
         <option value="rolo" <?= $unit === 'rolo' ? 'selected' : '' ?>>Rolo</option>
         <option value="caixa" <?= $unit === 'caixa' ? 'selected' : '' ?>>Caixa</option>
+        <option value="folha" <?= $unit === 'folha' ? 'selected' : '' ?>>Folha</option>
     </select>
 </div>
 
+
 <div class="form-group">
-    <label for="current_quantity">Quantidade atual</label>
+    <label for="quantity_mode">Tipo de quantidade</label>
+    <select class="select" id="quantity_mode" name="quantity_mode" required>
+        <option value="integer" <?= $quantityMode === 'integer' ? 'selected' : '' ?>>Quantidade inteira (ex.: 5 pincéis)</option>
+        <option value="decimal" <?= $quantityMode === 'decimal' ? 'selected' : '' ?>>Quantidade decimal (ex.: 1,5 kg)</option>
+    </select>
+</div>
+<div class="form-group">
+    <label for="current_quantity">Quantidade atual (alterações pela tela Estoque)</label>
 
     <input
         class="input"
-        type="number"
+        type="number" step="<?= $quantityMode === 'integer' ? '1' : '0.001' ?>"
         id="current_quantity"
-        name="current_quantity"
+        name="current_quantity" <?= isset($material['id']) ? 'readonly' : '' ?>
         min="0"
         value="<?= e($currentQuantity) ?>"
         required
@@ -96,7 +107,7 @@ $appliesToAll = (int) ($material['applies_to_all'] ?? 1);
 
     <input
         class="input"
-        type="number"
+        type="number" step="<?= $quantityMode === 'integer' ? '1' : '0.001' ?>"
         id="min_quantity"
         name="min_quantity"
         min="0"
