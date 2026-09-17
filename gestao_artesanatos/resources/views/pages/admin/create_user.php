@@ -5,7 +5,7 @@ $userItem = [];
 <div class="page-header">
     <div>
         <h2>Novo Usuário</h2>
-        <p>Cadastre professores/orientadores ou alunos/participantes no sistema.</p>
+        <p>Cadastre uma conta de acesso. Crianças e alunos atendidos são cadastrados na área Alunos e não recebem login.</p>
     </div>
 
     <a href="<?= e(url('/admin')) ?>" class="btn btn-secondary">

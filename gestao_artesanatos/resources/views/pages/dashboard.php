@@ -11,7 +11,7 @@ foreach ($ranking as $item) {
 <div class="page-header">
     <div>
         <h2>Dashboard</h2>
-        <p>Visão geral das oficinas, participantes, produção artesanal e estoque.</p>
+        <p>Visão geral das oficinas, alunos atendidos, produção artesanal e estoque.</p>
     </div>
 
     <div class="actions">
@@ -34,7 +34,7 @@ foreach ($ranking as $item) {
     </div>
 
     <div class="stat-card">
-        <span class="stat-label">Participantes</span>
+        <span class="stat-label">Alunos atendidos</span>
         <strong class="stat-value"><?= e($stats['participants'] ?? 0) ?></strong>
     </div>
 

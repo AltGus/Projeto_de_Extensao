@@ -23,45 +23,12 @@ $workshop = $workshop ?? [];
         <form
             class="form"
             method="POST"
+            enctype="multipart/form-data"
             action="<?= e(url('/oficinas/' . $workshop['id'] . '/atualizar')) ?>"
         >
             <?= csrf_field() ?>
 
-            <div class="form-group">
-                <label for="name">Nome da oficina</label>
-
-                <input
-                    class="input"
-                    type="text"
-                    id="name"
-                    name="name"
-                    value="<?= e($workshop['name'] ?? '') ?>"
-                    required
-                >
-            </div>
-
-            <div class="form-group">
-                <label for="description">Descrição</label>
-
-                <textarea
-                    class="textarea"
-                    id="description"
-                    name="description"
-                    required
-                ><?= e($workshop['description'] ?? '') ?></textarea>
-            </div>
-
-            <div class="form-group">
-                <label for="color">Cor da oficina</label>
-
-                <input
-                    class="input"
-                    type="color"
-                    id="color"
-                    name="color"
-                    value="<?= e($workshop['color'] ?? '#4f46e5') ?>"
-                >
-            </div>
+            <?php require __DIR__ . '/fields.php'; ?>
 
             <div class="form-actions">
                 <a href="<?= e(url('/oficinas')) ?>" class="btn btn-secondary">

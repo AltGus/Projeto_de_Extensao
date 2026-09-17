@@ -5,13 +5,26 @@ $users = $users ?? $items ?? [];
 <div class="page-header">
     <div>
         <h2>Painel Administrativo</h2>
-        <p>Gerencie professores, orientadores, alunos e participantes da ONG.</p>
+        <p>Gerencie somente as contas que acessam o sistema. Crianças são cadastradas separadamente em Alunos.</p>
     </div>
 
     <a href="<?= e(url('/admin/usuarios/criar')) ?>" class="btn btn-primary">
         Novo Usuário
     </a>
 </div>
+
+<section class="panel">
+    <div class="panel-header">
+        <h3>Alunos atendidos</h3>
+        <p>Cadastre e gerencie as crianças atendidas pela entidade. Esses registros são independentes das contas de acesso ao sistema.</p>
+    </div>
+    <div class="panel-body">
+        <div class="actions">
+            <a href="<?= e(url('/alunos')) ?>" class="btn btn-primary">Gerenciar alunos</a>
+            <a href="<?= e(url('/alunos/criar')) ?>" class="btn btn-secondary">Cadastrar aluno</a>
+        </div>
+    </div>
+</section>
 
 <section class="panel">
     <div class="panel-header">
@@ -51,7 +64,7 @@ $users = $users ?? $items ?? [];
                                         </span>
                                     <?php else: ?>
                                         <span class="badge badge-success">
-                                            Aluno / Participante
+                                            Usuário Operacional
                                         </span>
                                     <?php endif; ?>
                                 </td>
@@ -73,12 +86,12 @@ $users = $users ?? $items ?? [];
                                             <form
                                                 method="POST"
                                                 action="<?= e(url('/admin/usuarios/' . $user['id'] . '/excluir')) ?>"
-                                                data-confirm="Deseja excluir este usuário?"
+                                                data-confirm="Deseja arquivar este usuário?"
                                             >
                                                 <?= csrf_field() ?>
 
                                                 <button type="submit" class="btn btn-danger">
-                                                    Excluir
+                                                    Arquivar
                                                 </button>
                                             </form>
                                         <?php else: ?>
@@ -98,7 +111,7 @@ $users = $users ?? $items ?? [];
                 <h3>Nenhum usuário cadastrado</h3>
 
                 <p>
-                    Cadastre professores/orientadores e alunos/participantes para utilizar o sistema.
+                    Cadastre professores/orientadores e, quando necessário, usuários operacionais. Crianças não recebem conta de acesso.
                 </p>
 
                 <a href="<?= e(url('/admin/usuarios/criar')) ?>" class="btn btn-primary">

@@ -5,7 +5,7 @@ $workshop = [];
 <div class="page-header">
     <div>
         <h2>Nova Oficina</h2>
-        <p>Cadastre uma nova oficina para organizar participantes e produções.</p>
+        <p>Cadastre uma nova oficina para organizar alunos e produções.</p>
     </div>
 
     <a href="<?= e(url('/oficinas')) ?>" class="btn btn-secondary">
@@ -20,7 +20,7 @@ $workshop = [];
     </div>
 
     <div class="panel-body">
-        <form class="form" method="POST" action="<?= e(url('/oficinas')) ?>">
+        <form class="form" method="POST" enctype="multipart/form-data" action="<?= e(url('/oficinas')) ?>">
             <?= csrf_field() ?>
 
             <?php require __DIR__ . '/fields.php'; ?>

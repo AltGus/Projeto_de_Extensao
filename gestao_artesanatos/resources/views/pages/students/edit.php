@@ -1,0 +1,2 @@
+<div class="page-header"><div><h2>Editar Aluno</h2><p>Atualize contatos e participação em oficinas.</p></div><a class="btn btn-secondary" href="<?= e(url('/alunos/'.$student['id'])) ?>">Voltar</a></div>
+<section class="panel"><div class="panel-body"><form class="form" method="POST" action="<?= e(url('/alunos/'.$student['id'].'/atualizar')) ?>"><?= csrf_field() ?><?php require __DIR__.'/fields.php'; ?><div class="form-actions"><button class="btn btn-primary">Salvar Alterações</button></div></form></div></section>
